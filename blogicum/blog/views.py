@@ -1,5 +1,5 @@
 from django.http import Http404
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from .models import Post, Category
 from django.utils import timezone
 
@@ -21,7 +21,7 @@ def index(request):
 
 def post_detail(request, id):
     template_name = 'blog/detail.html'
-    post = Post.objects.get(pk=id)
+    post = get_object_or_404(Post, pk=id)
     if (not post.category.is_published
             or not post.is_published
             or post.pub_date > timezone.now()):
@@ -34,8 +34,8 @@ def post_detail(request, id):
 
 def category_posts(request, category_slug):
     template_name = 'blog/category.html'
-    category = Category.objects.get(slug=category_slug)
-    if category is None or not category.is_published:
+    category = get_object_or_404(Category, slug=category_slug)
+    if not category.is_published:
         raise Http404()
     posts = Post.objects.select_related(
         "category", "author", 'location'
